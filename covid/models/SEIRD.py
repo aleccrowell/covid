@@ -50,7 +50,7 @@ class SEIRD(SEIRDBase):
 
         # Sample parameters
         sigma = numpyro.sample("sigma", 
-                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est), P16))
+                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est))
 
         gamma = numpyro.sample("gamma", 
                                 dist.Gamma(gamma_shape, gamma_shape * I_duration_est))
