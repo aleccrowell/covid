@@ -43,41 +43,41 @@ class SEIRD(SEIRDBase):
         '''        
                 
         # Sample initial number of infected individuals
-        I0 = numpyro.sample("I0", dist.Uniform(0, 0.02*N))
-        E0 = numpyro.sample("E0", dist.Uniform(0, 0.02*N))
-        H0 = numpyro.sample("H0", dist.Uniform(0, 0.02*N))
-        D0 = numpyro.sample("D0", dist.Uniform(0, 100))
+        I0 = numpyro.sample("I0", dist.Uniform(0, 0.02*N), PRNGKey(12))
+        E0 = numpyro.sample("E0", dist.Uniform(0, 0.02*N), PRNGKey(13))
+        H0 = numpyro.sample("H0", dist.Uniform(0, 0.02*N), PRNGKey(14))
+        D0 = numpyro.sample("D0", dist.Uniform(0, 100), PRNGKey(15))
 
         # Sample parameters
         sigma = numpyro.sample("sigma", 
-                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est))
+                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est), PRNGKey(16))
 
         gamma = numpyro.sample("gamma", 
-                                dist.Gamma(gamma_shape, gamma_shape * I_duration_est))
+                                dist.Gamma(gamma_shape, gamma_shape * I_duration_est), PRNGKey(17))
 
     #     gamma = numpyro.sample("gamma", 
     #                            dist.TruncatedNormal(loc = 1./I_duration_est, scale = 0.25)
 
         beta0 = numpyro.sample("beta0", 
-                               dist.Gamma(beta_shape, beta_shape * I_duration_est/R0_est))
+                               dist.Gamma(beta_shape, beta_shape * I_duration_est/R0_est), PRNGKey(18))
 
         det_prob = numpyro.sample("det_prob", 
                                   dist.Beta(det_prob_est * det_prob_conc,
-                                            (1-det_prob_est) * det_prob_conc))
+                                            (1-det_prob_est) * det_prob_conc), PRNGKey(19))
 
         det_prob_d = numpyro.sample("det_prob_d", 
                                     dist.Beta(.9 * 100,
-                                              (1-.9) * 100))
+                                              (1-.9) * 100), PRNGKey(20))
 
         death_prob = numpyro.sample("death_prob", 
                                     dist.Beta(.1 * 100,
-                                              (1-.1) * 100))
+                                              (1-.1) * 100), PRNGKey(21))
 
         death_rate = numpyro.sample("death_rate", 
-                                    dist.Gamma(10, 10 * 10))
+                                    dist.Gamma(10, 10 * 10), PRNGKey(22))
 
         if drift_scale is not None:
-            drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale))
+            drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale), PRNGKey(23))
         else:
             drift = 0
 
@@ -132,7 +132,7 @@ class SEIRD(SEIRDBase):
         det_prob, det_noise_scale, death_prob, death_rate, det_prob_d  = params
 
         beta = numpyro.sample("beta" + suffix,
-                      ExponentialRandomWalk(loc=beta0, scale=rw_scale, drift=drift, num_steps=T-1))
+                      ExponentialRandomWalk(loc=beta0, scale=rw_scale, drift=drift, num_steps=T-1), PRNGKey(24))
 
         # Run ODE
         x = SEIRDModel.run(T, x0, (beta, sigma, gamma, death_prob, death_rate))

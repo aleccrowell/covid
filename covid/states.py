@@ -4,7 +4,8 @@ import cachetools.func
 @cachetools.func.ttl_cache(ttl=3600)
 def uga_traits():
     url = 'https://raw.githubusercontent.com/CEIDatUGA/COVID-19-DATA/master/US/US_state_traits.csv'
-    traits = pd.read_csv(url, thousands = ',')
+    s=requests.get(url,verify=False).content
+    traits = pd.read_csv(io.StringIO(s.decode('utf-8')), thousands = ',')
     traits = traits.set_index('postalCode')
     traits.index.name = 'state'
     traits.index = traits.index.fillna('tot')  # there is a total line which has values for a few columns
@@ -21,7 +22,8 @@ def uga_traits():
 @cachetools.func.ttl_cache(ttl=3600)
 def uga_interventions():
     url = 'https://github.com/CEIDatUGA/COVID-19-DATA/raw/master/US/us-state-intervention-data/US_state_intervention_time_series.csv'
-    df = pd.read_csv(url, index_col=0)
+    s=requests.get(url,verify=False).content
+    df = pd.read_csv(io.StringIO(s.decode('utf-8')), index_col=0)
     df.NAME = df.NAME.replace(abbrev)
     df = df.rename(columns={'NAME' : 'state', 'DATE' : 'date'})
     df.date = pd.to_datetime(df.date)

@@ -45,7 +45,8 @@ def load_world_data():
     world = world.loc[:,(slice(None), 'tot', slice(None))] # only country totals
 
     country_names = world.columns.unique(level=0)
-    world_pop_data = pd.read_csv('https://s3.amazonaws.com/rawstore.datahub.io/630580e802a621887384f99527b68f59.csv')
+    s=requests.get('https://s3.amazonaws.com/rawstore.datahub.io/630580e802a621887384f99527b68f59.csv',verify=False).content
+    world_pop_data = pd.read_csv(io.StringIO(s.decode('utf-8')))
     world_pop_data = world_pop_data.set_index("Country")
         
     country_names_valid = set(country_names) & set(world_pop_data.index) 

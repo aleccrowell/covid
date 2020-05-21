@@ -5,7 +5,8 @@ import cachetools.func
 
 @cachetools.func.ttl_cache(ttl=3600)
 def load_us():
-    df = pd.read_csv('https://covidtracking.com/api/states/daily.csv')
+    s=requests.get('https://covidtracking.com/api/states/daily.csv',verify=False).content
+    df = pd.read_csv(io.StringIO(s.decode('utf-8')))
     df.date = pd.to_datetime(df.date, format='%Y%m%d')
     df = df.set_index('date')
     df = df.drop(columns=['dateChecked'])
@@ -20,7 +21,8 @@ def load_us():
 @cachetools.func.ttl_cache(ttl=3600)
 def load_us_flat(start='2020-03-04'):
     
-    df = pd.read_csv('https://covidtracking.com/api/states/daily.csv')
+    s=requests.get('https://covidtracking.com/api/states/daily.csv',verify=False).content
+    df = pd.read_csv(io.StringIO(s.decode('utf-8')))
     df.date = pd.to_datetime(df.date, format='%Y%m%d')
     
     df = df.set_index(['state', 'date'])

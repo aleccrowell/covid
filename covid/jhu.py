@@ -7,7 +7,8 @@ from . import states
 #@functools.lru_cache(128)
 @cachetools.func.ttl_cache(ttl=3600)
 def load_and_massage(url):
-    df = pd.read_csv(url)
+    s=requests.get(url,verify=False).content
+    df = pd.read_csv(io.StringIO(s.decode('utf-8')))
     df = df.drop(columns=['Lat', 'Long'])
     df = df.rename(columns={'Province/State' : 'province', 'Country/Region' : 'country'})    
     df.province = df.province.replace(states.abbrev)
@@ -42,7 +43,8 @@ def load_world():
 def load_us():
     baseURL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
     def loadData(fileName, columnName):
-        data = pd.read_csv(baseURL + fileName)
+        s=requests.get(baseURL + fileName,verify=False).content
+        data = pd.read_csv(io.StringIO(s.decode('utf-8')))
         return (data)
     confirmed = loadData(
     "time_series_covid19_confirmed_US.csv", "confirmed")
