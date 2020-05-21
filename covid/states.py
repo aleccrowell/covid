@@ -1,6 +1,9 @@
 import pandas as pd
 import cachetools.func
 
+import requests
+import io
+
 @cachetools.func.ttl_cache(ttl=3600)
 def uga_traits():
     url = 'https://raw.githubusercontent.com/CEIDatUGA/COVID-19-DATA/master/US/US_state_traits.csv'

@@ -31,6 +31,9 @@ from tqdm import tqdm
 
 import warnings
 
+import requests
+import io
+
 
 """
 ************************************************************

@@ -4,6 +4,9 @@ import warnings
 
 from . import states
 
+import requests
+import io
+
 #@functools.lru_cache(128)
 @cachetools.func.ttl_cache(ttl=3600)
 def load_and_massage(url):

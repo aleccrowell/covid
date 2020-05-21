@@ -3,6 +3,9 @@ import pandas as pd
 import itertools
 import cachetools.func
 
+import requests
+import io
+
 @cachetools.func.ttl_cache(ttl=3600)
 def load_us():
     s=requests.get('https://covidtracking.com/api/states/daily.csv',verify=False).content
