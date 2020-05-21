@@ -50,34 +50,34 @@ class SEIRD(SEIRDBase):
 
         # Sample parameters
         sigma = numpyro.sample("sigma", 
-                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est), PRNGKey(16))
+                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est), P16))
 
         gamma = numpyro.sample("gamma", 
-                                dist.Gamma(gamma_shape, gamma_shape * I_duration_est), PRNGKey(17))
+                                dist.Gamma(gamma_shape, gamma_shape * I_duration_est))
 
     #     gamma = numpyro.sample("gamma", 
     #                            dist.TruncatedNormal(loc = 1./I_duration_est, scale = 0.25)
 
         beta0 = numpyro.sample("beta0", 
-                               dist.Gamma(beta_shape, beta_shape * I_duration_est/R0_est), PRNGKey(18))
+                               dist.Gamma(beta_shape, beta_shape * I_duration_est/R0_est))
 
         det_prob = numpyro.sample("det_prob", 
                                   dist.Beta(det_prob_est * det_prob_conc,
-                                            (1-det_prob_est) * det_prob_conc), PRNGKey(19))
+                                            (1-det_prob_est) * det_prob_conc))
 
         det_prob_d = numpyro.sample("det_prob_d", 
                                     dist.Beta(.9 * 100,
-                                              (1-.9) * 100), PRNGKey(20))
+                                              (1-.9) * 100))
 
         death_prob = numpyro.sample("death_prob", 
                                     dist.Beta(.1 * 100,
-                                              (1-.1) * 100), PRNGKey(21))
+                                              (1-.1) * 100))
 
         death_rate = numpyro.sample("death_rate", 
-                                    dist.Gamma(10, 10 * 10), PRNGKey(22))
+                                    dist.Gamma(10, 10 * 10))
 
         if drift_scale is not None:
-            drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale), PRNGKey(23))
+            drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale))
         else:
             drift = 0
 
@@ -132,7 +132,7 @@ class SEIRD(SEIRDBase):
         det_prob, det_noise_scale, death_prob, death_rate, det_prob_d  = params
 
         beta = numpyro.sample("beta" + suffix,
-                      ExponentialRandomWalk(loc=beta0, scale=rw_scale, drift=drift, num_steps=T-1), PRNGKey(24))
+                      ExponentialRandomWalk(loc=beta0, scale=rw_scale, drift=drift, num_steps=T-1))
 
         # Run ODE
         x = SEIRDModel.run(T, x0, (beta, sigma, gamma, death_prob, death_rate))
