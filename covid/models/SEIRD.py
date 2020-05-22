@@ -23,13 +23,13 @@ class SEIRD(SEIRDBase):
                  T = 50,
                  N = 1e5,
                  T_future = 0,
-                 E_duration_est = 5.0,
-                 I_duration_est = 2.0,
+                 E_duration_est = 5.5,
+                 I_duration_est = 3.0,
                  R0_est = 3.0,
                  beta_shape = 1,
-                 sigma_shape = 5,
+                 sigma_shape = 8,
                  gamma_shape = 8,
-                 det_prob_est = 0.2,
+                 det_prob_est = 0.15,
                  det_prob_conc = 50,
                  det_noise_scale = 0.15,
                  rw_scale = 2e-1,
@@ -44,9 +44,9 @@ class SEIRD(SEIRDBase):
                 
         # Sample initial number of infected individuals
 
-        I0 = numpyro.sample("I0", dist.Uniform(0, 0.02*N))
+        I0 = numpyro.sample("I0", dist.Uniform(10, 0.05*N))
 
-        E0 = numpyro.sample("E0", dist.Uniform(0, 0.02*N))
+        E0 = numpyro.sample("E0", dist.Uniform(10, 0.05*N))
 
         H0 = numpyro.sample("H0", dist.Uniform(0, 0.01*N))
 

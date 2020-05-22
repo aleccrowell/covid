@@ -4,7 +4,8 @@ from numpyro.infer import MCMC, NUTS, Predictive
 
 import jax
 import jax.numpy as np
-from jax.random import PRNGKey
+import numpy as rnp
+from jax.random import PRNGKey, split
 
 import numpy as onp
 import pandas as pd
@@ -70,9 +71,14 @@ class Model():
     def infer(self, num_warmup=1000, num_samples=1000, num_chains=1, rng_key=PRNGKey(1), **args):
         '''Fit using MCMC'''
         
+        # Start from this source of randomness. We will split keys for subsequent operations.
+        rng_key = PRNGKey(0)
+        rng_key, rng_key_ = split(rng_key)
+        
         args = dict(self.args, **args)
         
-        kernel = NUTS(self, init_strategy = numpyro.infer.util.init_to_median())
+        #kernel = NUTS(self, init_strategy = numpyro.infer.util.init_to_median())
+        kernel = NUTS(self)
 
         mcmc = MCMC(kernel, 
                     num_warmup=num_warmup, 
@@ -223,7 +229,7 @@ class Model():
         fields = {f: 0.0 + self.get(samples, f, forecast=forecast)[:,:T] for f in plot_fields}
         names = {f: self.names[f] for f in plot_fields}
                 
-        medians = {names[f]: np.median(v, axis=0) for f, v in fields.items()}
+        medians = {names[f]: rnp.median(v, axis=0) for f, v in fields.items()}
 
         t = pd.date_range(start=start, periods=T, freq='D')
 
@@ -247,7 +253,7 @@ class Model():
         for interval in intervals:
             low=(100.-interval)/2
             high=100.-low
-            pred_intervals = {names[f]: np.percentile(v, (low, high), axis=0) for f, v in fields.items()}
+            pred_intervals = {names[f]: rnp.percentile(v, (low, high), axis=0) for f, v in fields.items()}
             for i, pi in enumerate(pred_intervals.values()):
                 h = ax.fill_between(t, pi[0,:], pi[1,:], alpha=0.15, color=colors[i], label=interval)
                 handles.append(h)

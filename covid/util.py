@@ -13,6 +13,7 @@ import numpy as onp
 
 import jax
 import jax.numpy as np
+import numpy as rnp
 from jax.random import PRNGKey
 
 import numpyro
@@ -157,8 +158,8 @@ def plot_growth_rate(mcmc_samples, start, model=SEIRModel, ax=None):
 
     growth_rate = SEIRModel.growth_rate((beta, sigma, gamma))
 
-    pi = np.percentile(growth_rate, (10, 90), axis=0)
-    df = pd.DataFrame(index=t, data={'growth_rate': np.median(growth_rate, axis=0)})
+    pi = rnp.percentile(growth_rate, (10, 90), axis=0)
+    df = pd.DataFrame(index=t, data={'growth_rate': rnp.median(growth_rate, axis=0)})
     df.plot(style='-o', ax=ax)
     ax.fill_between(t, pi[0,:], pi[1,:], alpha=0.1)
 
