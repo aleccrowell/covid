@@ -10,6 +10,8 @@ from .util import observe, ExponentialRandomWalk
 
 import numpy as onp
 
+from covid.models.base import Model
+
 """
 ************************************************************
 SEIHR model
