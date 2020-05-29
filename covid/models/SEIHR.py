@@ -103,7 +103,7 @@ class SEIHR(SEIHRBase):
 
         E0 = numpyro.sample("E0", dist.Uniform(10, 0.05*N))
 
-        LH0 = numpyro.sample("SH0", dist.Uniform(0, 0.01*N))
+        LH0 = numpyro.sample("LH0", dist.Uniform(0, 0.01*N))
 
         SH0 = numpyro.sample("SH0", dist.Uniform(0, 0.01*N))
 
