@@ -81,7 +81,6 @@ class SEIHR(SEIHRBase):
                  I_duration_est = 3.0,
                  R0_est = 3.0,
                  beta_shape = 1,
-                 alpha_shape = 8,
                  sigma_shape = 8,
                  gamma_shape = 8,
                  det_prob_est = 0.15,
@@ -110,8 +109,6 @@ class SEIHR(SEIHRBase):
         SH0 = numpyro.sample("SH0", dist.Uniform(0, 0.01*N))
 
         # Sample parameters
-        alpha = numpyro.sample("alpha", 
-                               dist.Gamma(alpha_shape, alpha_shape * E_duration_est))
 
         sigma = numpyro.sample("sigma", 
                                dist.Gamma(sigma_shape, sigma_shape * E_duration_est))

@@ -206,7 +206,7 @@ class SEIRDModel(SEIRModel):
 class SEIHRModel(SEIRModel):
     
     @classmethod
-    def dx_dt(cls, x, t, beta, alpha, sigma, gamma, lhosp_prob, shosp_prob, lhosp_rate, shosp_rate):
+    def dx_dt(cls, x, t, beta, sigma, gamma, lhosp_prob, shosp_prob, lhosp_rate, shosp_rate):
         """
         SEIHR equations
         """
@@ -214,8 +214,8 @@ class SEIHRModel(SEIRModel):
         N = S + E + I + R + SH + LH
 
         dS_dt = - beta * S * I / N
-        dE_dt = beta * S * I / N - alpha * E
-        dI_dt = alpha * E - gamma  * I
+        dE_dt = beta * S * I / N - sigma * E
+        dI_dt = sigma * E - gamma  * I
         dlH_dt = lhosp_prob * gamma * I - lhosp_rate * LH
         dsH_dt = shosp_prob * gamma * I - shosp_rate * SH
         dR_dt = gamma * (1 - lhosp_prob - shosp_prob) * I + lhosp_rate * LH + shosp_rate * SH
