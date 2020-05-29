@@ -34,12 +34,12 @@ class SEIHRBase(Model):
 
         return {
             'confirmed': self.data['confirmed'].values,
-            'death': self.data['death'].values
+            'hosp': self.data['hosp'].values
            }
     
     
     def dz_mean(self, samples, **args):
-        '''Daily deaths mean'''
+        '''Daily hosps mean'''
         mean_z = self.mean_z(samples, **args)
         if args.get('forecast'):
             first = self.mean_z(samples, forecast=False)[:,-1,None]
@@ -49,7 +49,7 @@ class SEIHRBase(Model):
         return onp.diff(mean_z, axis=1, prepend=first)        
     
     def dz(self, samples, noise_scale=0.4, **args):
-        '''Daily deaths with observation noise'''
+        '''Daily hosps with observation noise'''
         dz_mean = self.dz_mean(samples, **args)
         dz = dist.Normal(dz_mean, noise_scale * dz_mean).sample(PRNGKey(10))
         return dz
@@ -127,10 +127,6 @@ class SEIHR(SEIHRBase):
                                   dist.Beta(det_prob_est * det_prob_conc,
                                             (1-det_prob_est) * det_prob_conc))
 
-        det_prob_h = numpyro.sample("det_prob_h", 
-                                    dist.Beta(.9 * 100,
-                                              (1-.9) * 100))
-
         lhosp_prob = numpyro.sample("lhosp_prob", 
                                     dist.Beta(.1 * 100,
                                               (1-.1) * 100))
@@ -164,12 +160,12 @@ class SEIHR(SEIHRBase):
             y0 = observe("y0", x0[6], det_prob, det_noise_scale, obs=confirmed0)
             
         with numpyro.handlers.scale(scale_factor=2.0):
-            z0 = observe("z0", x0[5], det_prob_h, det_noise_scale, obs=hosp0)
+            z0 = observe("z0", x0[5], .99, det_noise_scale, obs=hosp0)
 
         params = (beta0, sigma, gamma, 
                   rw_scale, drift, 
                   det_prob, det_noise_scale, 
-                  lhosp_prob, lhosp_rate, shosp_prob, shosp_rate, det_prob_h)
+                  lhosp_prob, lhosp_rate, shosp_prob, shosp_rate)
 
         beta, x, y, z = self.dynamics(T, params, x0, confirmed=confirmed, hosp=hosp)
 
@@ -182,7 +178,7 @@ class SEIHR(SEIHRBase):
             params = (beta[-1], sigma, gamma, 
                       forecast_rw_scale, drift, 
                       det_prob, det_noise_scale, 
-                      lhosp_prob, lhosp_rate, shosp_prob, shosp_rate, det_prob_h)
+                      lhosp_prob, lhosp_rate, shosp_prob, shosp_rate)
 
             beta_f, x_f, y_f, z_f = self.dynamics(T_future+1, params, x[-1,:], 
                                                   suffix="_future")
@@ -194,11 +190,11 @@ class SEIHR(SEIHRBase):
         return beta, x, y, z, det_prob, (lhosp_prob + shosp_prob)
 
     
-    def dynamics(self, T, params, x0, confirmed=None, death=None, suffix=""):
+    def dynamics(self, T, params, x0, confirmed=None, hosp=None, suffix=""):
         '''Run SEIRD dynamics for T time steps'''
 
         beta0, sigma, gamma, rw_scale, drift, \
-        det_prob, det_noise_scale, lhosp_prob, lhosp_rate, shosp_prob, shosp_rate, det_prob_h  = params
+        det_prob, det_noise_scale, lhosp_prob, lhosp_rate, shosp_prob, shosp_rate  = params
 
         beta = numpyro.sample("beta" + suffix,
                       ExponentialRandomWalk(loc=beta0, scale=rw_scale, drift=drift, num_steps=T-1))
@@ -214,7 +210,7 @@ class SEIHR(SEIHRBase):
             y = observe("y" + suffix, x[:,6], det_prob, det_noise_scale, obs = confirmed)
 
         with numpyro.handlers.scale(scale_factor=2.0):
-            z = observe("z" + suffix, x[:,5], det_prob_h, det_noise_scale, obs = hosp)
+            z = observe("z" + suffix, x[:,5], .99, det_noise_scale, obs = hosp)
 
         return beta, x, y, z
         
