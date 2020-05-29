@@ -202,3 +202,26 @@ class SEIRDModel(SEIRModel):
     @classmethod
     def seed(cls, N=1e6, I=100., E=0., R=0.0, H=0.0, D=0.0):
         return np.stack([N-E-I-R-H-D, E, I, R, H, D, I])
+
+class SEIHRModel(SEIRModel):
+    
+    @classmethod
+    def dx_dt(cls, x, t, beta, alpha, sigma, gamma, lhosp_prob, shosp_prob, lhosp_rate, shosp_rate):
+        """
+        SEIHR equations
+        """
+        S, E, I, LH, SH, R = x
+        N = S + E + I + R + SH + LH
+
+        dS_dt = - beta * S * I / N
+        dE_dt = beta * S * I / N - alpha * E
+        dI_dt = alpha * E - gamma  * I
+        dlH_dt = lhosp_prob * gamma * I - lhosp_rate * LH
+        dsH_dt = shosp_prob * gamma * I - shosp_rate * SH
+        dR_dt = gamma * (1 - lhosp_prob - shosp_prob) * I + lhosp_rate * LH + shosp_rate * SH
+
+        return np.stack([dS_dt, dE_dt, dI_dt, dlH_dt, dsH_dt, dR_dt])
+
+    @classmethod
+    def seed(cls, N=1e6, I=100., E=0., R=0.0, LH=0.0, SH=0.0):
+        return np.stack([N-E-I-R-LH-SH, E, I, LH, SH, R])
