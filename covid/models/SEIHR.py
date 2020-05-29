@@ -103,6 +103,8 @@ class SEIHR(SEIHRBase):
 
         E0 = numpyro.sample("E0", dist.Uniform(10, 0.05*N))
 
+        R0 = numpyro.sample("R0", dist.Uniform(0, 0.01*N))
+
         LH0 = numpyro.sample("LH0", dist.Uniform(0, 0.01*N))
 
         SH0 = numpyro.sample("SH0", dist.Uniform(0, 0.01*N))
@@ -147,7 +149,7 @@ class SEIHR(SEIHRBase):
             drift = 0
 
 
-        x0 = SEIHRModel.seed(N=N, I=I0, E=E0, H=H0, D=D0)
+        x0 = SEIHRModel.seed(N=N, I=I0, E=E0, R=R0, LH=LH0, SH=SH0)
         numpyro.deterministic("x0", x0)
 
         # Split observations into first and rest
