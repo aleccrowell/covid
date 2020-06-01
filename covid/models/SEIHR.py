@@ -69,6 +69,7 @@ class SEIHRBase(Model):
         dy_mean = self.dy_mean(samples, **args)
         dy = dist.Normal(dy_mean, noise_scale * dy_mean).sample(PRNGKey(11))
         return dy
+        
 
 
 class SEIHR(SEIHRBase):    
@@ -127,18 +128,18 @@ class SEIHR(SEIHRBase):
                                             (1-det_prob_est) * det_prob_conc))
 
         lhosp_prob = numpyro.sample("lhosp_prob", 
-                                    dist.Beta(.1 * 100,
-                                              (1-.1) * 100))
+                                    dist.Beta(.05 * 100,
+                                              (1-.05) * 100))
 
         lhosp_rate = numpyro.sample("lhosp_rate", 
-                                    dist.Gamma(10, 10 * 10))
+                                    dist.Gamma(5, 10 * 10))
 
         shosp_prob = numpyro.sample("shosp_prob", 
-                                    dist.Beta(.1 * 100,
-                                              (1-.1) * 100))
+                                    dist.Beta(.05 * 100,
+                                              (1-.05) * 100))
 
         shosp_rate = numpyro.sample("shosp_rate", 
-                                    dist.Gamma(10, 10 * 10))
+                                    dist.Gamma(5, 10 * 20))
 
         if drift_scale is not None:
             drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale))
