@@ -114,7 +114,6 @@ def observe_nonrandom(name, latent, det_noise_scale, obs=None):
     if obs is not None:
         mask = np.isfinite(obs) & (obs >= 0)
         obs = np.where(mask, obs, 0.0)
-        obs += reg
 
     mean = latent
     scale = det_noise_scale * mean + 1
