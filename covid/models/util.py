@@ -108,7 +108,7 @@ def observe(*args, **kwargs):
 #    return observe_poisson(*args, **kwargs)
 #    return observe_gamma(*args, **kwargs)
 
-def observe_nonrandom(name, det_noise_scale obs=None):
+def observe_nonrandom(name, det_noise_scale, obs=None):
     mask = True
     
     if obs is not None:
