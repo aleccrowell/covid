@@ -211,7 +211,7 @@ class SEIHRModel(SEIRModel):
         SEIHR equations
         """
         S, E, I, LH, SH, R, CI, CH = x
-        N = S + E + I + SH + LH + R
+        N = S + E + I + LH  + SH + R
 
         dS_dt = - beta * S * I / N
         dE_dt = beta * S * I / N - sigma * E

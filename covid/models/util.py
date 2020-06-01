@@ -108,6 +108,25 @@ def observe(*args, **kwargs):
 #    return observe_poisson(*args, **kwargs)
 #    return observe_gamma(*args, **kwargs)
 
+def observe_nonrandom(name, obs=None):
+    mask = True
+    
+    if obs is not None:
+        mask = np.isfinite(obs) & (obs >= 0)
+        obs = np.where(mask, obs, 0.0)
+        obs += reg
+
+    mean = latent
+    scale = det_noise_scale * mean + 1
+    d = dist.TruncatedNormal(0., mean, scale)
+    
+    numpyro.deterministic("mean_" + name, mean)
+    
+    with numpyro.handlers.mask(mask_array=mask):
+        y = numpyro.sample(name, d, obs = obs)
+        
+    return y
+
 def observe_normal(name, latent, det_rate, det_noise_scale, obs=None):
     mask = True
 

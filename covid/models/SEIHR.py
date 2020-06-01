@@ -6,7 +6,7 @@ import numpyro
 import numpyro.distributions as dist
 
 from ..compartment import SEIHRModel
-from .util import observe, ExponentialRandomWalk
+from .util import observe, observe_nonrandom, ExponentialRandomWalk
 
 import numpy as onp
 
@@ -82,8 +82,8 @@ class SEIHR(SEIHRBase):
                  I_duration_est = 3.0,
                  R0_est = 3.0,
                  beta_shape = 1,
-                 sigma_shape = 8,
-                 gamma_shape = 8,
+                 sigma_shape = 2,
+                 gamma_shape = 2,
                  det_prob_est = 0.15,
                  det_prob_conc = 50,
                  det_noise_scale = 0.15,
@@ -132,14 +132,14 @@ class SEIHR(SEIHRBase):
                                               (1-.05) * 100))
 
         lhosp_rate = numpyro.sample("lhosp_rate", 
-                                    dist.Gamma(5, 10 * 10))
+                                    dist.Gamma(2, 10 * 10))
 
         shosp_prob = numpyro.sample("shosp_prob", 
                                     dist.Beta(.05 * 100,
                                               (1-.05) * 100))
 
         shosp_rate = numpyro.sample("shosp_rate", 
-                                    dist.Gamma(5, 10 * 20))
+                                    dist.Gamma(2, 10 * 20))
 
         if drift_scale is not None:
             drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale))
@@ -160,7 +160,7 @@ class SEIHR(SEIHRBase):
             y0 = observe("y0", x0[6], det_prob, det_noise_scale, obs=confirmed0)
             
         with numpyro.handlers.scale(scale_factor=2.0):
-            z0 = observe("z0", x0[7], .99, det_noise_scale, obs=hosp0)
+            z0 = observe_nonrandom("z0", x0[7], det_noise_scale, obs=hosp0)
 
         params = (beta0, sigma, gamma, 
                   rw_scale, drift, 
