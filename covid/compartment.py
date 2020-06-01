@@ -210,8 +210,8 @@ class SEIHRModel(SEIRModel):
         """
         SEIHR equations
         """
-        S, E, I, LH, SH, R = x
-        N = S + E + I + R + SH + LH
+        S, E, I, LH, SH, R, CI, CH = x
+        N = S + E + I + SH + LH + R
 
         dS_dt = - beta * S * I / N
         dE_dt = beta * S * I / N - sigma * E
@@ -219,9 +219,11 @@ class SEIHRModel(SEIRModel):
         dlH_dt = lhosp_prob * gamma * I - lhosp_rate * LH
         dsH_dt = shosp_prob * gamma * I - shosp_rate * SH
         dR_dt = gamma * (1 - lhosp_prob - shosp_prob) * I + lhosp_rate * LH + shosp_rate * SH
+        dCI_dt = sigma * E  # cumulative infections
+        dCH_dt = gamma * I  # cumulative infections
 
-        return np.stack([dS_dt, dE_dt, dI_dt, dlH_dt, dsH_dt, dR_dt])
+        return np.stack([dS_dt, dE_dt, dI_dt, dlH_dt, dsH_dt, dR_dt, dCI_dt, dCH_dt])
 
     @classmethod
     def seed(cls, N=1e6, I=100., E=0., R=0.0, LH=0.0, SH=0.0):
-        return np.stack([N-E-I-R-LH-SH, E, I, LH, SH, R])
+        return np.stack([N-E-I-R-LH-SH, E, I, LH, SH, R, I, (LH+SH)])

@@ -159,7 +159,7 @@ class SEIHR(SEIHRBase):
             y0 = observe("y0", x0[6], det_prob, det_noise_scale, obs=confirmed0)
             
         with numpyro.handlers.scale(scale_factor=2.0):
-            z0 = observe("z0", x0[5], .99, det_noise_scale, obs=hosp0)
+            z0 = observe("z0", x0[7], .99, det_noise_scale, obs=hosp0)
 
         params = (beta0, sigma, gamma, 
                   rw_scale, drift, 
@@ -209,7 +209,7 @@ class SEIHR(SEIHRBase):
             y = observe("y" + suffix, x[:,6], det_prob, det_noise_scale, obs = confirmed)
 
         with numpyro.handlers.scale(scale_factor=2.0):
-            z = observe("z" + suffix, x[:,5], .99, det_noise_scale, obs = hosp)
+            z = observe("z" + suffix, x[:,7], .99, det_noise_scale, obs = hosp)
 
         return beta, x, y, z
         
