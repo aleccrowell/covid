@@ -156,7 +156,7 @@ def plot_growth_rate(mcmc_samples, start, model=SEIRModel, ax=None):
     gamma = mcmc_samples['gamma'][:,None]
     t = pd.date_range(start=start, periods=beta.shape[1], freq='D')
 
-    growth_rate = SEIRModel.growth_rate((beta, sigma, gamma))
+    growth_rate = model.growth_rate((beta, gamma))
 
     pi = rnp.percentile(growth_rate, (10, 90), axis=0)
     df = pd.DataFrame(index=t, data={'growth_rate': rnp.median(growth_rate, axis=0)})
@@ -409,7 +409,8 @@ def score_place(forecast_date,
     log_score = prob.apply(np.log).clip(lower=-10).rename('log score')
     scores['log_score'] = log_score
 
-    # Compute quantile of observed value in samples
+    # Compute quantile of 
+    # d value in samples
     scores['quantile'] = samples.lt(obs, axis=0).sum(axis=1) / n_samples
     
     return scores

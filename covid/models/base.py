@@ -12,7 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import numpy as onp
-from covid.compartment import SEIRDModel
+from covid.compartment import SEIHRModel
 
 
 '''Utility to define access method for time varying fields'''
@@ -39,11 +39,11 @@ class Model():
         'D': 'dead',
         'C': 'cumulative infected',
         'y': 'confirmed',
-        'z': 'deaths',
+        'z': 'hosps',
         'dy': 'daily confirmed',
-        'dz': 'daily deaths',
+        'dz': 'daily hosps',
         'mean_dy': 'daily confirmed (mean)',
-        'mean_dz': 'daily deaths (mean)'
+        'mean_dz': 'daily hosps (mean)'
     }
             
     
@@ -139,7 +139,7 @@ class Model():
         sigma = self.mcmc_samples['sigma']
         beta_end = beta[:,-rw_use_last:].mean(axis=1)
 
-        growth_rate = SEIRDModel.growth_rate((beta_end, sigma, gamma))
+        growth_rate = SEIHRModel.growth_rate((beta, gamma))
         
         low = int(low/100 * len(growth_rate))
         high = int(high/100 * len(growth_rate))

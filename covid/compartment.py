@@ -227,3 +227,8 @@ class SEIHRModel(SEIRModel):
     @classmethod
     def seed(cls, N=1e6, I=100., E=0., R=0.0, LH=0.0, SH=0.0):
         return np.stack([N-E-I-R-LH-SH, E, I, LH, SH, R, I, (LH+SH)])
+
+    @classmethod
+    def growth_rate(cls, theta):
+        beta, gamma = theta
+        return beta/gamma
