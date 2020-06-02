@@ -156,7 +156,7 @@ def plot_growth_rate(mcmc_samples, start, model=SEIRModel, ax=None):
     gamma = mcmc_samples['gamma'][:,None]
     t = pd.date_range(start=start, periods=beta.shape[1], freq='D')
 
-    growth_rate = model.growth_rate((beta, gamma))
+    growth_rate = model.growth_rate((beta, sigma, gamma))
 
     pi = rnp.percentile(growth_rate, (10, 90), axis=0)
     df = pd.DataFrame(index=t, data={'growth_rate': rnp.median(growth_rate, axis=0)})
