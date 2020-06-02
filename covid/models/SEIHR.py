@@ -82,8 +82,8 @@ class SEIHR(SEIHRBase):
                  I_duration_est = 3.0,
                  R0_est = 3.0,
                  beta_shape = 1,
-                 sigma_shape = 2,
-                 gamma_shape = 2,
+                 sigma_shape = .2,
+                 gamma_shape = .2,
                  det_prob_est = 0.15,
                  det_prob_conc = 50,
                  det_noise_scale = 0.15,
@@ -112,10 +112,10 @@ class SEIHR(SEIHRBase):
         # Sample parameters
 
         sigma = numpyro.sample("sigma", 
-                               dist.Gamma(sigma_shape, sigma_shape * E_duration_est))
+                               dist.LogNormal(np.log(1/E_duration_est),sigma_shape))
 
         gamma = numpyro.sample("gamma", 
-                                dist.Gamma(gamma_shape, gamma_shape * I_duration_est))
+                                dist.LogNormal(np.log(1/I_duration_est),gamma_shape))
 
     #     gamma = numpyro.sample("gamma", 
     #                            dist.TruncatedNormal(loc = 1./I_duration_est, scale = 0.25)
@@ -132,14 +132,14 @@ class SEIHR(SEIHRBase):
                                               (1-.05) * 100))
 
         lhosp_rate = numpyro.sample("lhosp_rate", 
-                                    dist.Gamma(2, 10 * 10))
+                                    dist.LogNormal(np.log(1/22),0.2))
 
         shosp_prob = numpyro.sample("shosp_prob", 
                                     dist.Beta(.05 * 100,
                                               (1-.05) * 100))
 
         shosp_rate = numpyro.sample("shosp_rate", 
-                                    dist.Gamma(2, 10 * 20))
+                                    dist.LogNormal(np.log(1/7),0.2))
 
         if drift_scale is not None:
             drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale))

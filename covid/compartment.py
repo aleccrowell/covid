@@ -220,7 +220,7 @@ class SEIHRModel(SEIRModel):
         dsH_dt = shosp_prob * gamma * I - shosp_rate * SH
         dR_dt = gamma * (1 - lhosp_prob - shosp_prob) * I + lhosp_rate * LH + shosp_rate * SH
         dCI_dt = sigma * E  # cumulative infections
-        dCH_dt = gamma * I  # cumulative infections
+        dCH_dt = gamma * I * (lhosp_prob + shosp_prob) # cumulative hospitalizations
 
         return np.stack([dS_dt, dE_dt, dI_dt, dlH_dt, dsH_dt, dR_dt, dCI_dt, dCH_dt])
 
