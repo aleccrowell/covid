@@ -230,5 +230,12 @@ class SEIHRModel(SEIRModel):
 
     @classmethod
     def growth_rate(cls, theta):
-        beta, gamma = theta
-        return beta/gamma
+        '''
+        Initial rate of exponential growth
+        
+        Reference: Junling Ma, Estimating epidemic exponential growth rate 
+        and basic reproduction number, Infectious Disease Modeling, 2020
+        '''
+        beta, sigma, gamma = theta
+        lam = (-(sigma + gamma) + np.sqrt((sigma - gamma)**2 + 4 * sigma * beta))/2. 
+        return (lam +  sigma)*(lam + gamma)/(sigma*gamma)
