@@ -210,7 +210,7 @@ class SEIHR(SEIHRBase):
             y = observe("y" + suffix, x[:,6], det_prob, det_noise_scale, obs = confirmed)
 
         with numpyro.handlers.scale(scale_factor=2.0):
-            z = observe("z" + suffix, x[:,7], .99, det_noise_scale, obs = hosp)
+            z = observe_nonrandom("z" + suffix, x[:,7], det_noise_scale, obs=hosp)
 
         return beta, x, y, z
         
