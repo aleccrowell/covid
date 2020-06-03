@@ -148,9 +148,9 @@ class Model():
         selection = onp.random.randint(low, high, size=(1000))
         inds = sorted_inds[selection]
 
-        self.mcmc_samples = new_samples        new_samples = {k: v[inds, ...] for k, v in self.mcmc_samples.items()}
+        new_samples = {k: v[inds, ...] for k, v in self.mcmc_samples.items()}
 
-
+        self.mcmc_samples = new_samples
         return new_samples
 
     
