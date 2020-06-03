@@ -33,27 +33,10 @@ class SEIHRBase(Model):
             return {}
 
         return {
-            'confirmed': self.data['confirmed'].values,
+            #'confirmed': self.data['confirmed'].values,
             'hosp': self.data['hosp'].values
            }
-    
-    
-    def dz_mean(self, samples, **args):
-        '''Daily hosps mean'''
-        mean_z = self.mean_z(samples, **args)
-        if args.get('forecast'):
-            first = self.mean_z(samples, forecast=False)[:,-1,None]
-        else:
-            first = np.nan
-            
-        return onp.diff(mean_z, axis=1, prepend=first)        
-    
-    def dz(self, samples, noise_scale=0.4, **args):
-        '''Daily hosps with observation noise'''
-        dz_mean = self.dz_mean(samples, **args)
-        dz = dist.Normal(dz_mean, noise_scale * dz_mean).sample(PRNGKey(10))
-        return dz
-        
+
     def dy_mean(self, samples, **args):
         '''Daily confirmed cases mean'''
         mean_y = self.mean_y(samples, **args)
@@ -152,7 +135,7 @@ class SEIHR(SEIHRBase):
                   det_prob, det_noise_scale, 
                   hosp_prob)
 
-        beta, x, y = self.dynamics(T, params, x0, confirmed=confirmed, hosp=hosp)
+        beta, x, y = self.dynamics(T, params, x0, hosp=hosp)
 
         x = np.vstack((x0, x))
         y = np.append(y0, y)
@@ -175,7 +158,7 @@ class SEIHR(SEIHRBase):
         return beta, x, y, det_prob, hosp_prob
 
     
-    def dynamics(self, T, params, x0, confirmed=None, hosp=None, suffix=""):
+    def dynamics(self, T, params, x0, hosp=None, suffix=""):
         '''Run SEIRD dynamics for T time steps'''
 
         beta0, sigma, gamma, rw_scale, drift, \
