@@ -206,27 +206,25 @@ class SEIRDModel(SEIRModel):
 class SEIHRModel(SEIRModel):
     
     @classmethod
-    def dx_dt(cls, x, t, beta, sigma, gamma, lhosp_prob, shosp_prob, lhosp_rate, shosp_rate):
+    def dx_dt(cls, x, t, beta, sigma, gamma, hosp_prob):
         """
         SEIHR equations
         """
-        S, E, I, LH, SH, R, CI, CH = x
-        N = S + E + I + LH  + SH + R
+        S, E, I, H, R, CI = x
+        N = S + E + I + H + R
 
         dS_dt = - beta * S * I / N
         dE_dt = beta * S * I / N - sigma * E
         dI_dt = sigma * E - gamma  * I
-        dlH_dt = lhosp_prob * gamma * I - lhosp_rate * LH
-        dsH_dt = shosp_prob * gamma * I - shosp_rate * SH
-        dR_dt = gamma * (1 - lhosp_prob - shosp_prob) * I + lhosp_rate * LH + shosp_rate * SH
+        dH_dt = hosp_prob * gamma * I
+        dR_dt = gamma * (1 - hosp_prob) * I
         dCI_dt = sigma * E  # cumulative infections
-        dCH_dt = gamma * I * (lhosp_prob + shosp_prob) # cumulative hospitalizations
 
-        return np.stack([dS_dt, dE_dt, dI_dt, dlH_dt, dsH_dt, dR_dt, dCI_dt, dCH_dt])
+        return np.stack([dS_dt, dE_dt, dI_dt, dH_dt, dR_dt, dCI_dt])
 
     @classmethod
-    def seed(cls, N=1e6, I=100., E=0., R=0.0, LH=0.0, SH=0.0):
-        return np.stack([N-E-I-R-LH-SH, E, I, LH, SH, R, I, (LH+SH)])
+    def seed(cls, N=1e6, I=100., E=0., R=0.0, H=0.0):
+        return np.stack([N-E-I-R-H, E, I, H, R, I])
 
     @classmethod
     def growth_rate(cls, theta):

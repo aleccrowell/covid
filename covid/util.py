@@ -166,7 +166,6 @@ def plot_growth_rate(mcmc_samples, start, model=SEIRModel, true_gr=None, ax=None
     ax.fill_between(t, pi[0,:], pi[1,:], alpha=0.1)
 
     ax.axhline(1, linestyle='--')
-    return df
     
 
 

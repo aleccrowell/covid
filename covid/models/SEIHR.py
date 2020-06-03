@@ -21,7 +21,7 @@ SEIHR model
 
 class SEIHRBase(Model):
 
-    compartments = ['S', 'E', 'I', 'LH', 'SH', 'R']
+    compartments = ['S', 'E', 'I', 'H', 'R']
 
     @property
     def obs(self):
@@ -105,9 +105,7 @@ class SEIHR(SEIHRBase):
 
         R0 = numpyro.sample("R0", dist.Uniform(0, 0.01*N))
 
-        LH0 = numpyro.sample("LH0", dist.Uniform(0, 0.01*N))
-
-        SH0 = numpyro.sample("SH0", dist.Uniform(0, 0.01*N))
+        H0 = numpyro.sample("H0", dist.Uniform(0, 0.01*N))
 
         # Sample parameters
 
@@ -127,19 +125,9 @@ class SEIHR(SEIHRBase):
                                   dist.Beta(det_prob_est * det_prob_conc,
                                             (1-det_prob_est) * det_prob_conc))
 
-        lhosp_prob = numpyro.sample("lhosp_prob", 
-                                    dist.Beta(.05 * 100,
-                                              (1-.05) * 100))
-
-        lhosp_rate = numpyro.sample("lhosp_rate", 
-                                    dist.LogNormal(np.log(1/22),0.2))
-
-        shosp_prob = numpyro.sample("shosp_prob", 
-                                    dist.Beta(.05 * 100,
-                                              (1-.05) * 100))
-
-        shosp_rate = numpyro.sample("shosp_rate", 
-                                    dist.LogNormal(np.log(1/7),0.2))
+        hosp_prob = numpyro.sample("hosp_prob", 
+                                    dist.Beta(.1 * 100,
+                                              (1-.1) * 100))
 
         if drift_scale is not None:
             drift = numpyro.sample("drift", dist.Normal(loc=0, scale=drift_scale))
@@ -147,7 +135,7 @@ class SEIHR(SEIHRBase):
             drift = 0
 
 
-        x0 = SEIHRModel.seed(N=N, I=I0, E=E0, R=R0, LH=LH0, SH=SH0)
+        x0 = SEIHRModel.seed(N=N, I=I0, E=E0, R=R0, H=H0)
         numpyro.deterministic("x0", x0)
 
         # Split observations into first and rest
@@ -178,7 +166,7 @@ class SEIHR(SEIHRBase):
             params = (beta[-1], sigma, gamma, 
                       forecast_rw_scale, drift, 
                       det_prob, det_noise_scale, 
-                      lhosp_prob, lhosp_rate, shosp_prob, shosp_rate)
+                      hosp_prob)
 
             beta_f, x_f, y_f, z_f = self.dynamics(T_future+1, params, x[-1,:], 
                                                   suffix="_future")
@@ -187,20 +175,20 @@ class SEIHR(SEIHRBase):
             y = np.append(y, y_f)
             z = np.append(z, z_f)
 
-        return beta, x, y, z, det_prob, (lhosp_prob + shosp_prob)
+        return beta, x, y, z, det_prob, hosp_prob
 
     
     def dynamics(self, T, params, x0, confirmed=None, hosp=None, suffix=""):
         '''Run SEIRD dynamics for T time steps'''
 
         beta0, sigma, gamma, rw_scale, drift, \
-        det_prob, det_noise_scale, lhosp_prob, lhosp_rate, shosp_prob, shosp_rate  = params
+        det_prob, det_noise_scale, hosp_prob  = params
 
         beta = numpyro.sample("beta" + suffix,
                       ExponentialRandomWalk(loc=beta0, scale=rw_scale, drift=drift, num_steps=T-1))
 
         # Run ODE
-        x = SEIHRModel.run(T, x0, (beta, sigma, gamma, lhosp_prob, lhosp_rate, shosp_prob, shosp_rate))
+        x = SEIHRModel.run(T, x0, (beta, sigma, gamma, hosp_prob))
         x = x[1:] # first entry duplicates x0
         numpyro.deterministic("x" + suffix, x)
 
