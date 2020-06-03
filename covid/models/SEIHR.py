@@ -90,7 +90,7 @@ class SEIHR(SEIHRBase):
                  rw_scale = 2e-1,
                  forecast_rw_scale = 0,
                  drift_scale = None,
-                 confirmed=None,
+                 #confirmed=None,
                  hosp=None):
 
         '''
@@ -139,27 +139,24 @@ class SEIHR(SEIHRBase):
         numpyro.deterministic("x0", x0)
 
         # Split observations into first and rest
-        confirmed0, confirmed = (None, None) if confirmed is None else (confirmed[0], confirmed[1:])
+        #confirmed0, confirmed = (None, None) if confirmed is None else (confirmed[0], confirmed[1:])
         hosp0, hosp = (None, None) if hosp is None else (hosp[0], hosp[1:])
 
 
         # First observation
-        with numpyro.handlers.scale(scale_factor=0.5):
-            y0 = observe("y0", x0[5], det_prob, det_noise_scale, obs=confirmed0)
-            
         with numpyro.handlers.scale(scale_factor=2.0):
-            z0 = observe_nonrandom("z0", x0[3], det_noise_scale, obs=hosp0)
+            y0 = observe_nonrandom("y0", x0[3], det_noise_scale, obs=hosp0)
 
         params = (beta0, sigma, gamma, 
                   rw_scale, drift, 
                   det_prob, det_noise_scale, 
                   hosp_prob)
 
-        beta, x, y, z = self.dynamics(T, params, x0, confirmed=confirmed, hosp=hosp)
+        beta, x, y = self.dynamics(T, params, x0, confirmed=confirmed, hosp=hosp)
 
         x = np.vstack((x0, x))
         y = np.append(y0, y)
-        z = np.append(z0, z)
+        #z = np.append(z0, z)
 
         if T_future > 0:
 
@@ -168,14 +165,14 @@ class SEIHR(SEIHRBase):
                       det_prob, det_noise_scale, 
                       hosp_prob)
 
-            beta_f, x_f, y_f, z_f = self.dynamics(T_future+1, params, x[-1,:], 
+            beta_f, x_f, y_f = self.dynamics(T_future+1, params, x[-1,:], 
                                                   suffix="_future")
 
             x = np.vstack((x, x_f))
             y = np.append(y, y_f)
-            z = np.append(z, z_f)
+            #z = np.append(z, z_f)
 
-        return beta, x, y, z, det_prob, hosp_prob
+        return beta, x, y, det_prob, hosp_prob
 
     
     def dynamics(self, T, params, x0, confirmed=None, hosp=None, suffix=""):
@@ -194,11 +191,8 @@ class SEIHR(SEIHRBase):
 
 
         # Noisy observations
-        with numpyro.handlers.scale(scale_factor=0.5):
-            y = observe("y" + suffix, x[:,5], det_prob, det_noise_scale, obs = confirmed)
-
         with numpyro.handlers.scale(scale_factor=2.0):
-            z = observe_nonrandom("z" + suffix, x[:,3], det_noise_scale, obs=hosp)
+            y = observe_nonrandom("y" + suffix, x[:,3], det_noise_scale, obs=hosp)
 
         return beta, x, y, z
         
