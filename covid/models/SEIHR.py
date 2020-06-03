@@ -177,5 +177,5 @@ class SEIHR(SEIHRBase):
         with numpyro.handlers.scale(scale_factor=2.0):
             y = observe_nonrandom("y" + suffix, x[:,3], det_noise_scale, obs=hosp)
 
-        return beta, x, y, z
+        return beta, x, y
         
