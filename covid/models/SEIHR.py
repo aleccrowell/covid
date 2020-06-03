@@ -153,7 +153,7 @@ class SEIHR(SEIHRBase):
         params = (beta0, sigma, gamma, 
                   rw_scale, drift, 
                   det_prob, det_noise_scale, 
-                  lhosp_prob, lhosp_rate, shosp_prob, shosp_rate)
+                  hosp_prob)
 
         beta, x, y, z = self.dynamics(T, params, x0, confirmed=confirmed, hosp=hosp)
 
