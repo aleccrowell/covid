@@ -146,7 +146,7 @@ def plot_R0(mcmc_samples, start, ax=None):
     ax.axhline(1, linestyle='--')
     
 
-def plot_growth_rate(mcmc_samples, start, model=SEIRModel, ax=None):
+def plot_growth_rate(mcmc_samples, start, model=SEIRModel, true_gr=None, ax=None):
     
     ax = plt.axes(ax)
 
@@ -160,10 +160,12 @@ def plot_growth_rate(mcmc_samples, start, model=SEIRModel, ax=None):
 
     pi = rnp.percentile(growth_rate, (10, 90), axis=0)
     df = pd.DataFrame(index=t, data={'growth_rate': rnp.median(growth_rate, axis=0)})
+    if true_gr:
+        df['true_growth_rate'] = true_gr
     df.plot(style='-o', ax=ax)
     ax.fill_between(t, pi[0,:], pi[1,:], alpha=0.1)
 
-    ax.axhline(0, linestyle='--')
+    ax.axhline(1, linestyle='--')
     
 
 
